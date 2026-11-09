@@ -9,7 +9,7 @@ The default data covers NFL seasons **2016–2025**, regular season and playoffs
 Install Git and Docker Desktop, and start Docker. Then open a terminal:
 
 ```sh
-git clone <GitHub-repository-URL>
+git clone https://github.com/VegasKevin/NFL_Game_ML_Model_mid.git
 cd NFL_Game_ML_Model
 docker compose build
 docker compose run --rm pipeline
