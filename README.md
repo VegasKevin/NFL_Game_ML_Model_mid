@@ -1,56 +1,26 @@
 # NFL win probability at the end of Q3
 
-This project builds a team-game dataset for predicting whether a team wins after the third quarter. Each game has two rows, one per team. The `won` label uses the final result, including overtime; tied games have no label.
+This project uses [nflverse play-by-play](https://github.com/nflverse/nflverse-data/releases/tag/pbp) to build a dataset for predicting a team's chance of winning at the end of the third quarter. It has two rows per game, one for each team. Final results, including overtime, provide the win/loss label.
 
-The default data covers NFL seasons **2016–2025**, regular season and playoffs. Games in calendar year 2026 count when they belong to the 2025 season. Predictors use play data through Q3, earlier games for pregame averages, and pre-play situation fields from the opening Q4 record when its clock is 15:00. No outcome from that Q4 play is used.
+## Clone and run
 
-## Run from a GitHub clone
-
-Install Git and Docker Desktop, and start Docker. Then open a terminal:
+Install Git and Docker Desktop, and start Docker. Then run:
 
 ```sh
 git clone https://github.com/VegasKevin/NFL_Game_ML_Model_mid.git
-cd NFL_Game_ML_Model
+cd NFL_Game_ML_Model_mid
 docker compose build
 docker compose run --rm pipeline
-```
-
-Replace the placeholder with this repository's GitHub URL after it is published. The first run downloads nflverse play-by-play files; later runs reuse the local cache. The container exits after writing the dataset.
-
-For a quicker trial of one season:
-
-```sh
-docker compose run --rm pipeline pipeline.py --seasons 2024
-```
-
-To export CSV as well as Parquet:
-
-```sh
-docker compose run --rm pipeline pipeline.py --seasons 2024 --csv
-```
-
-## Files created
-
-- `data/raw/`: downloaded season files, cached on your computer.
-- `data/processed/team_games_q3_2016_2025.parquet`: default team-game dataset.
-- `data/processed/team_games_q3_2016_2025_features.json`: feature dictionary.
-- `data/processed/*.csv`: optional CSV exports.
-
-The two data folders are mounted from the host, so files survive after the container exits. They are excluded from Git. The source release can be revised; retain cached raw files if you need to reproduce an exact previous build.
-
-## Model exploration
-
-`Clean_Data_1.py` is a separate, exploratory cleaning and modeling script. It is not part of the dataset-building command. After editing it, rebuild the image, then run:
-
-```sh
-docker compose build
 docker compose run --rm pipeline Clean_Data_1.py
 ```
 
-Before relying on this model run, correct its season-type mapping to use `{"REG": 0, "POST": 1}` and have its logistic-regression prediction use `lr_X_val`. The script is still being developed; its AUC is not a published benchmark. Train, validation, and test splits should keep both team rows from a game together.
+The first run downloads and caches the 2016–2025 seasons and writes the dataset. The second runs the exploratory cleaning and model comparisons, prints their scores, and saves a heatmap. Both regular season and playoff games are included. The container exits when each command finishes.
 
-## Dataset notes
+## What is where
 
-The pipeline keeps points scored and allowed by quarter; the selected play events are totals through Q3. Pregame averages use completed earlier games in the same season. First-game pregame averages are missing in the raw pipeline output; the separate cleaning script handles its own fill. Undefined third-down rates and unavailable Q3 situation measurements remain missing in the pipeline output. The original `Data_Import.ipynb` is for exploration and is not run by Docker.
+- `pipeline.py` builds the Q3 features and labels. Its output is `data/processed/team_games_q3_2016_2025.parquet`, with a JSON feature dictionary alongside it.
+- `Clean_Data_1.py` fills selected missing values and compares decision tree and logistic regression models. `previous_season.py` supports its prior-season fills.
+- `Data_Import.ipynb` is the original exploration notebook; Docker does not run or change it.
+- `data/raw/` holds cached downloads; `data/processed/` holds generated files. Docker mounts both folders from your computer, and Git excludes them.
 
-Source: [nflverse play-by-play releases](https://github.com/nflverse/nflverse-data/releases/tag/pbp).
+Model scores are exploratory validation results, not a deployed prediction service. Keep both team rows from a game in the same train, validation, or test split.

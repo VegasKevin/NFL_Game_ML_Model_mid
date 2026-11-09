@@ -152,7 +152,7 @@ plt.close()
 print("Saved heatmap to data/processed/tree_auc_heatmap.png")
 
 #Choosing Values of Max_depth = 4 and Min_sample_split = 500;  It gives a good AUC with only Depth of 4
-print("Choosing Values of Max_depth = 4 and Min_sample_split = 500;  It gives a AUC of .8909 with only Depth of 4")
+print("Choosing Values of Max_depth = 4 and Min_sample_split = 500;  It gives a AUC of .8637 with only Depth of 4")
 
 final_Dec_tree = DecisionTreeClassifier(max_depth=4, min_samples_split=500)
 final_Dec_tree.fit(X_Train, y_train)
