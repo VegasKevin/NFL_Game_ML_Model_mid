@@ -1,0 +1,6 @@
+services:
+  pipeline:
+    build: .
+    volumes:
+      - ./data/raw:/app/data/raw
+      - ./data/processed:/app/data/processed
